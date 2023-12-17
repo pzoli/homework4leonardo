@@ -1,95 +1,91 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+
+import Image from "next/image";
+import styles from "./page.module.css";
+import { useQuery } from "@tanstack/react-query";
+import { GenerationDTO } from "./dtos/generationDTO";
+import axios from "axios";
+import { Paginator, PaginatorPageChangeEvent } from "primereact/Paginator";
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+	const [first, setFirst] = useState(0);
+	const [rows, setRows] = useState(50);
+	const [imageCount, setImageCount] = useState(0);
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+	const { data: generations, isLoading: isDataLoading } = useQuery<GenerationDTO[], Error>({
+		queryKey: ["generations", first, rows],
+		queryFn: async () => {
+			try {
+				const resGen = await axios.get("/api/generations?offset=" + first + "&limit=" + rows);
+				const dataGen = resGen.data as GenerationDTO[];
+				if (dataGen.length === 0) return [];
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+				const resGenCount = await axios.get("/api/generations/count");
+				const { count } = resGenCount.data;
+				setImageCount(count);
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
+				const genPromises: Promise<void | GenerationDTO[]>[] = [];
+				dataGen.forEach((generation: GenerationDTO) => {
+					genPromises.push(axios.get("/api/generations/" + generation.generationId).then((res) => {
+						generation.info = JSON.parse(res.data);
+					}));
+				});
+				await Promise.all(genPromises);
+				return dataGen;
+			} catch (err) {
+				console.error(err);
+				return [];
+			}
+		},
+	});
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+	function renderGeneration(generation: GenerationDTO, data: IGeneration, imageHeight: number, imageWidth: number, imgs: string[]): JSX.Element {
+		return (
+			<div style={{ borderStyle: "solid", paddingBottom: 10 }} key={generation.generationId}>
+				<p>{data.prompt}</p>
+				<div>
+					{imgs && imgs.map((img) => {
+						if (img.endsWith(".json")) return;
+						return (
+							<span style={{ padding: 20 }} key={img}>
+								<Image
+									src={"/downloads/" + generation.generationId + "/" + img}
+									alt={"Image of prompt: " + data.prompt}
+									title={"Image [generation: " + generation.generationId + "] [image: " + img + "] (" + data.createdAt + ")"}
+									width={imageWidth}
+									height={imageHeight}
+									priority
+								/>
+							</span>
+						);
+					})}
+				</div>
+			</div>
+		);
+	}
+
+	const onPageChange = (event: PaginatorPageChangeEvent) => {
+		setFirst(event.first);
+	};
+
+	return (
+		<main className={styles.main}>
+			<Paginator first={first} rows={rows} totalRecords={imageCount} onPageChange={onPageChange} />
+			<div className={styles.description}>
+				<div>
+					{generations && generations.map((generation) => {
+						const data = generation.info;
+						if (!data) return;
+						const imageHeight = data.imageHeight / 5;
+						const imageWidth = data.imageWidth / 5;
+						const imgs = data.generated_images.map((img) => img.id + ".jpg");
+						return renderGeneration(generation, data, imageHeight, imageWidth, imgs);
+					})}
+				</div>
+			</div>
+			<Paginator first={first} rows={rows} totalRecords={imageCount} onPageChange={onPageChange} />
+		</main>
+	);
 }
