@@ -25,14 +25,18 @@ export async function GET(req: NextRequest) {
 						prompt: gen.prompt,
 						createdAt: gen.createdAt,
 					};
-					Generation.create(genarationData);
-					savedCount++;
+					Generation.create(genarationData).then((_data) => {
+						savedCount++;
+					}).catch((err) => {
+						console.error(err);
+					});
 				} else {
 					console.log(`Generation [${gen.id}] existed`);
 				}
 				count++;
+			}).catch((err) => {
+				console.error(err);
 			});
-
 			const imagePath = path.join(serverPath("public"), "downloads", gen.id);
 			if (!fs.existsSync(imagePath)) {
 				fs.mkdirSync(imagePath, { recursive: true });

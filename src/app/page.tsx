@@ -11,10 +11,10 @@ import { useState } from "react";
 export default function Home() {
 
 	const [first, setFirst] = useState(0);
-	const [rows, setRows] = useState(50);
+	const [rows] = useState(50);
 	const [imageCount, setImageCount] = useState(0);
 
-	const { data: generations, isLoading: isDataLoading } = useQuery<GenerationDTO[], Error>({
+	const { data: generations } = useQuery<GenerationDTO[], Error>({
 		queryKey: ["generations", first, rows],
 		queryFn: async () => {
 			try {
@@ -23,13 +23,13 @@ export default function Home() {
 				if (dataGen.length === 0) return [];
 
 				const resGenCount = await axios.get("/api/generations/count");
-				const { count } = resGenCount.data;
+				const { count } = resGenCount.data as { count: number; };
 				setImageCount(count);
 
 				const genPromises: Promise<void | GenerationDTO[]>[] = [];
 				dataGen.forEach((generation: GenerationDTO) => {
 					genPromises.push(axios.get("/api/generations/" + generation.generationId).then((res) => {
-						generation.info = JSON.parse(res.data);
+						generation.info = JSON.parse(res.data as string) as IGeneration;
 					}));
 				});
 				await Promise.all(genPromises);

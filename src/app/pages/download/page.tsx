@@ -105,7 +105,8 @@ const DownloadImages = () => {
 			<div className="align-items-center justify-content-center">
 				<h1 className="flex align-items-center justify-content-center">Download Images</h1>
 				<Fieldset className="flex align-items-center justify-content-center" legend="By pagination" style={{ width: "50%", margin: "auto" }}>
-					<form onSubmit={handleSubmit(onSubmit, onSubmitError)}>
+					<form onSubmit={handleSubmit(onSubmit, onSubmitError) // eslint-disable-line @typescript-eslint/no-misused-promises
+					}>
 						<Controller
 							name="offset"
 							control={control}

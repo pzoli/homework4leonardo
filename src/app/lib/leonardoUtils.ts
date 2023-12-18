@@ -7,6 +7,7 @@ export const PAGESIZE = 50;
 export async function downloadImage(imagePath: string, id: string, url: string): Promise<void> {
 	const response = await axios.get(url, { responseType: "arraybuffer" });
 	try {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		fs.writeFileSync(path.join(imagePath, id + ".jpg"), response.data);
 		console.log(`Image [${id}] downloaded successfully!`);
 	} catch (error) {

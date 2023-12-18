@@ -9,6 +9,6 @@ type Props = {
 	};
 };
 
-export async function GET(req: NextRequest, { params: { generationId } }: Props) {
+export function GET(req: NextRequest, { params: { generationId } }: Props) {
 	return NextResponse.json(fs.readdirSync(path.join(DOWNLOAD_PATH, generationId)));
 }
