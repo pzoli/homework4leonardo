@@ -44,6 +44,7 @@ export default function Home() {
 	function renderGeneration(generation: GenerationDTO, data: IGeneration, imageHeight: number, imageWidth: number, imgs: string[]): JSX.Element {
 		return (
 			<div style={{ borderStyle: "solid", paddingBottom: 10 }} key={generation.generationId}>
+				<p>{data.createdAt}</p>
 				<p>{data.prompt}</p>
 				<div>
 					{imgs && imgs.map((img) => {
