@@ -50,7 +50,7 @@ export default function Home() {
 					{imgs && imgs.map((img) => {
 						if (img.endsWith(".json")) return;
 						return (
-							<span style={{ padding: 20 }} key={img}>
+							<a style={{ padding: "20px", display: "inline" }} href={"/downloads/" + generation.generationId + "/" + img} target="_blank" rel="noreferrer">
 								<Image
 									src={"/downloads/" + generation.generationId + "/" + img}
 									alt={"Image of prompt: " + data.prompt}
@@ -59,7 +59,7 @@ export default function Home() {
 									height={imageHeight}
 									priority
 								/>
-							</span>
+							</a>
 						);
 					})}
 				</div>
