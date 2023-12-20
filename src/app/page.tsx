@@ -6,13 +6,15 @@ import { useQuery } from "@tanstack/react-query";
 import { GenerationDTO } from "./dtos/generationDTO";
 import axios from "axios";
 import { Paginator, PaginatorPageChangeEvent } from "primereact/Paginator";
-import { useState } from "react";
+import { MutableRefObject, useRef, useState } from "react";
+import dayjs from "dayjs";
 
 export default function Home() {
 
 	const [first, setFirst] = useState(0);
 	const [rows] = useState(50);
 	const [imageCount, setImageCount] = useState(0);
+	const lastDate: MutableRefObject<Date | undefined> = useRef(undefined);
 
 	const { data: generations } = useQuery<GenerationDTO[], Error>({
 		queryKey: ["generations", first, rows],
@@ -41,10 +43,20 @@ export default function Home() {
 		},
 	});
 
+	function renderDate(date: Date): JSX.Element {
+		const isDiffenertDay = !lastDate.current || lastDate.current.getDate() !== new Date(date).getDate();
+		if (isDiffenertDay) {
+			lastDate.current = date;
+			return (
+				<p style={{ background: "#acdcfa", color: "#039dfc", fontSize: 16, fontWeight: "bold" }}>{dayjs(date).format("YYYY-MM-DD")}</p>
+			);
+		} else return (<></>);
+	}
+
 	function renderGeneration(generation: GenerationDTO, data: IGeneration, imageHeight: number, imageWidth: number, imgs: string[]): JSX.Element {
 		return (
 			<div style={{ borderStyle: "solid", paddingBottom: 10 }} key={generation.generationId}>
-				<p>{data.createdAt}</p>
+				{renderDate(new Date(data.createdAt))}
 				<p>{data.prompt}</p>
 				<div>
 					{imgs && imgs.map((img) => {
