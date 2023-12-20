@@ -48,7 +48,7 @@ export default function Home() {
 		if (isDiffenertDay) {
 			lastDate.current = date;
 			return (
-				<p style={{ background: "#acdcfa", color: "#039dfc", fontSize: 16, fontWeight: "bold" }}>{dayjs(date).format("YYYY-MM-DD")}</p>
+				<p className={styles.dateheader}>{dayjs(date).format("YYYY-MM-DD")}</p>
 			);
 		} else return (<></>);
 	}
