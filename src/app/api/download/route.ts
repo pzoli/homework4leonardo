@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
 
 			gen.generated_images.forEach((img) => {
 				console.log(img.url);
-				imgs.push(downloadImage(imagePath, img.id, img.url));
+				imgs.push(downloadImage(imagePath, img.id, img.url, gen.imageWidth, gen.imageHeight, true));
 				imageCount++;
 			});
 		});

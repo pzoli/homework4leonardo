@@ -1,14 +1,24 @@
 import axios from "axios";
 import path from "path";
 import fs from "fs";
+import sharp from "sharp";
 
 export const PAGESIZE = 50;
 
-export async function downloadImage(imagePath: string, id: string, url: string): Promise<void> {
+export async function downloadImage(imagePath: string, id: string, url: string, imageWidth: number, imageHeight: number, savePreview: boolean): Promise<void> {
 	const response = await axios.get(url, { responseType: "arraybuffer" });
 	try {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		fs.writeFileSync(path.join(imagePath, id + ".jpg"), response.data);
+		if (savePreview) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			await sharp(response.data).resize(Math.round(imageWidth / 5), Math.round(imageHeight / 5), {
+				fit: sharp.fit.outside,
+			}).toBuffer().then((data) => {
+				fs.writeFileSync(path.join(imagePath, id + "_preview.jpg"), data);
+			});
+		}
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		console.log(`Image [${id}] downloaded successfully!`);
 	} catch (error) {
 		console.log(error);

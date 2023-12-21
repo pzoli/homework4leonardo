@@ -65,7 +65,7 @@ export default function Home() {
 							return (
 								<a style={{ padding: "20px", display: "inline" }} href={"/downloads/" + generation.generationId + "/" + img} target="_blank" rel="noreferrer">
 									<Image
-										src={"/downloads/" + generation.generationId + "/" + img}
+										src={"/downloads/" + generation.generationId + "/" + img.replace(".jpg", "_preview.jpg")}
 										alt={"Image of prompt: " + data.prompt}
 										title={"Image [generation: " + generation.generationId + "] [image: " + img + "] (" + data.createdAt + ")"}
 										width={imageWidth}
