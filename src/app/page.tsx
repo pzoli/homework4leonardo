@@ -55,27 +55,29 @@ export default function Home() {
 
 	function renderGeneration(generation: GenerationDTO, data: IGeneration, imageHeight: number, imageWidth: number, imgs: string[]): JSX.Element {
 		return (
-			<div style={{ borderStyle: "solid", paddingBottom: 10 }} key={generation.generationId}>
+			<>
 				{renderDate(new Date(data.createdAt))}
-				<p>{data.prompt}</p>
-				<div>
-					{imgs && imgs.map((img) => {
-						if (img.endsWith(".json")) return;
-						return (
-							<a style={{ padding: "20px", display: "inline" }} href={"/downloads/" + generation.generationId + "/" + img} target="_blank" rel="noreferrer">
-								<Image
-									src={"/downloads/" + generation.generationId + "/" + img}
-									alt={"Image of prompt: " + data.prompt}
-									title={"Image [generation: " + generation.generationId + "] [image: " + img + "] (" + data.createdAt + ")"}
-									width={imageWidth}
-									height={imageHeight}
-									priority
-								/>
-							</a>
-						);
-					})}
+				<div style={{ borderStyle: "solid", paddingBottom: 10 }} key={generation.generationId}>
+					<p style={{ marginLeft: "10px" }}>{data.prompt}</p>
+					<div>
+						{imgs && imgs.map((img) => {
+							if (img.endsWith(".json")) return;
+							return (
+								<a style={{ padding: "20px", display: "inline" }} href={"/downloads/" + generation.generationId + "/" + img} target="_blank" rel="noreferrer">
+									<Image
+										src={"/downloads/" + generation.generationId + "/" + img}
+										alt={"Image of prompt: " + data.prompt}
+										title={"Image [generation: " + generation.generationId + "] [image: " + img + "] (" + data.createdAt + ")"}
+										width={imageWidth}
+										height={imageHeight}
+										priority
+									/>
+								</a>
+							);
+						})}
+					</div>
 				</div>
-			</div>
+			</>
 		);
 	}
 
