@@ -18,7 +18,6 @@ export async function downloadImage(imagePath: string, id: string, url: string, 
 				fs.writeFileSync(path.join(imagePath, id + "_preview.jpg"), data);
 			});
 		}
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		console.log(`Image [${id}] downloaded successfully!`);
 	} catch (error) {
 		console.log(error);
