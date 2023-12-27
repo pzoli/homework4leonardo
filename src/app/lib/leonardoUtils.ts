@@ -8,11 +8,9 @@ export const PAGESIZE = 50;
 export async function downloadImage(imagePath: string, id: string, url: string, imageWidth: number, imageHeight: number, savePreview: boolean): Promise<void> {
 	const response = await axios.get(url, { responseType: "arraybuffer" });
 	try {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-		fs.writeFileSync(path.join(imagePath, id + ".jpg"), response.data);
+		fs.writeFileSync(path.join(imagePath, id + ".jpg"), response.data as Buffer);
 		if (savePreview) {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-			await sharp(response.data).resize(Math.round(imageWidth / 5), Math.round(imageHeight / 5), {
+			await sharp(response.data as Buffer).resize(Math.round(imageWidth / 5), Math.round(imageHeight / 5), {
 				fit: sharp.fit.outside,
 			}).toBuffer().then((data) => {
 				fs.writeFileSync(path.join(imagePath, id + "_preview.jpg"), data);
