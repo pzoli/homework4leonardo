@@ -10,5 +10,10 @@ type Props = {
 };
 
 export function GET(_req: NextRequest, { params: { generationId } }: Props) {
-	return NextResponse.json(fs.readFileSync(path.join(DOWNLOAD_PATH, generationId, "data.json"), "utf8"));
+	return NextResponse.json(
+		fs.readFileSync(
+			path.join(DOWNLOAD_PATH, generationId, "data.json"),
+			"utf8",
+		),
+	);
 }

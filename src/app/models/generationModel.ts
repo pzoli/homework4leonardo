@@ -14,4 +14,6 @@ const generationSchema = new mongoose.Schema<GenerationSchema>({
 	createdAt: String,
 });
 
-export const Generation = mongoose.models.Generation || mongoose.model<GenerationSchema>("Generation", generationSchema);
+export const Generation =
+  mongoose.models.Generation ||
+  mongoose.model<GenerationSchema>("Generation", generationSchema);

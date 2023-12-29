@@ -17,26 +17,30 @@ export async function GET(req: NextRequest) {
 		const data = await downloadGenerations(offset, limit);
 		const imgs: Promise<void>[] = [];
 		data.generations.forEach((gen) => {
-			Generation.findOne({ generationId: gen.id }).then((existedData) => {
-				if (existedData === null) {
-					const genarationData: GenerationSchema = {
-						userId: process.env.USER_ID as string,
-						generationId: gen.id,
-						prompt: gen.prompt,
-						createdAt: gen.createdAt,
-					};
-					Generation.create(genarationData).then((_data) => {
-						savedCount++;
-					}).catch((err) => {
-						console.error(err);
-					});
-				} else {
-					console.log(`Generation [${gen.id}] existed`);
-				}
-				count++;
-			}).catch((err) => {
-				console.error(err);
-			});
+			Generation.findOne({ generationId: gen.id })
+				.then((existedData) => {
+					if (existedData === null) {
+						const genarationData: GenerationSchema = {
+							userId: process.env.USER_ID as string,
+							generationId: gen.id,
+							prompt: gen.prompt,
+							createdAt: gen.createdAt,
+						};
+						Generation.create(genarationData)
+							.then((_data) => {
+								savedCount++;
+							})
+							.catch((err) => {
+								console.error(err);
+							});
+					} else {
+						console.log(`Generation [${gen.id}] existed`);
+					}
+					count++;
+				})
+				.catch((err) => {
+					console.error(err);
+				});
 			const imagePath = path.join(serverPath("public"), "downloads", gen.id);
 			if (!fs.existsSync(imagePath)) {
 				fs.mkdirSync(imagePath, { recursive: true });
@@ -46,7 +50,16 @@ export async function GET(req: NextRequest) {
 
 			gen.generated_images.forEach((img) => {
 				console.log(img.url);
-				imgs.push(downloadImage(imagePath, img.id, img.url, gen.imageWidth, gen.imageHeight, true));
+				imgs.push(
+					downloadImage(
+						imagePath,
+						img.id,
+						img.url,
+						gen.imageWidth,
+						gen.imageHeight,
+						true,
+					),
+				);
 				imageCount++;
 			});
 		});

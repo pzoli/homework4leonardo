@@ -1,4 +1,8 @@
-import { PAGESIZE, downloadGenerations, downloadImage } from "@/app/lib/leonardoUtils";
+import {
+	PAGESIZE,
+	downloadGenerations,
+	downloadImage,
+} from "@/app/lib/leonardoUtils";
 import connection from "@/app/lib/dbConnect";
 import { NextResponse } from "next/server";
 import dayjs from "dayjs";
@@ -13,7 +17,11 @@ export async function GET() {
 	let savedCount = 0;
 	try {
 		await connection();
-		const midnight = dayjs().set("hour", 0).set("minute", 0).set("second", 0).set("millisecond", 0);
+		const midnight = dayjs()
+			.set("hour", 0)
+			.set("minute", 0)
+			.set("second", 0)
+			.set("millisecond", 0);
 		let offset = 0;
 		let isAfterMidnight = true;
 		let data;
@@ -26,35 +34,55 @@ export async function GET() {
 						isAfterMidnight = dayjs(gen.createdAt).isAfter(midnight);
 						if (isAfterMidnight) {
 							count++;
-							Generation.findOne({ generationId: gen.id }).then((existedData) => {
-								if (existedData === null) {
-									const genarationData: GenerationSchema = {
-										userId: process.env.USER_ID as string,
-										generationId: gen.id,
-										prompt: gen.prompt,
-										createdAt: gen.createdAt,
-									};
-									Generation.create(genarationData).then((_data) => {
-										savedCount++;
-									}).catch((err) => {
-										console.error(err);
-									});
-								} else {
-									console.log(`Generation [${gen.id}] existed`);
-								}
-							}).catch((err) => {
-								console.error(err);
-							});
-							const imagePath = path.join(serverPath("public"), "downloads", gen.id);
+							Generation.findOne({ generationId: gen.id })
+								.then((existedData) => {
+									if (existedData === null) {
+										const genarationData: GenerationSchema = {
+											userId: process.env.USER_ID as string,
+											generationId: gen.id,
+											prompt: gen.prompt,
+											createdAt: gen.createdAt,
+										};
+										Generation.create(genarationData)
+											.then((_data) => {
+												savedCount++;
+											})
+											.catch((err) => {
+												console.error(err);
+											});
+									} else {
+										console.log(`Generation [${gen.id}] existed`);
+									}
+								})
+								.catch((err) => {
+									console.error(err);
+								});
+							const imagePath = path.join(
+								serverPath("public"),
+								"downloads",
+								gen.id,
+							);
 							if (!fs.existsSync(imagePath)) {
 								fs.mkdirSync(imagePath, { recursive: true });
 							}
 							const gemerationJson = JSON.stringify(gen, null, 2);
-							fs.writeFileSync(path.join(imagePath, "data.json"), gemerationJson);
+							fs.writeFileSync(
+								path.join(imagePath, "data.json"),
+								gemerationJson,
+							);
 
 							gen.generated_images.forEach((img) => {
 								console.log(img.url);
-								imgs.push(downloadImage(imagePath, img.id, img.url, gen.imageWidth, gen.imageHeight, true));
+								imgs.push(
+									downloadImage(
+										imagePath,
+										img.id,
+										img.url,
+										gen.imageWidth,
+										gen.imageHeight,
+										true,
+									),
+								);
 								imageCount++;
 							});
 						} else {

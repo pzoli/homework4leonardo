@@ -50,5 +50,4 @@ interface IGeneratedImages {
 	id: string;
 	likeCount: number;
 	generated_image_variation_generics: unknown[];
-
 }
